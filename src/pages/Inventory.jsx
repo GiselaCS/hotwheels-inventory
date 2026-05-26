@@ -1,11 +1,30 @@
 import { useEffect, useState } from 'react'
-import { getCars, deleteCar } from '../services/carsService'
 
-import CarForm from '../components/CarForm'
+import {
+  getCars,
+  deleteCar,
+} from '../services/carsService'
+
 import CarCard from '../components/CarCard'
+import Filters from '../components/Filters'
+import Pagination from '../components/Pagination'
 
 function Inventory() {
   const [cars, setCars] = useState([])
+
+  const [search, setSearch] =
+    useState('')
+
+  const [category, setCategory] =
+    useState('')
+
+  const [color, setColor] =
+    useState('')
+
+  const [currentPage, setCurrentPage] =
+    useState(1)
+
+  const carsPerPage = 12
 
   useEffect(() => {
     loadCars()
@@ -35,22 +54,81 @@ function Inventory() {
     }
   }
 
+  const filteredCars = cars.filter(
+    (car) => {
+      const matchSearch =
+        car.name
+          .toLowerCase()
+          .includes(search.toLowerCase())
+
+      const matchCategory =
+        category === '' ||
+        car.category === category
+
+      const matchColor =
+        color === '' ||
+        car.color
+          .toLowerCase()
+          .includes(color.toLowerCase())
+
+      return (
+        matchSearch &&
+        matchCategory &&
+        matchColor
+      )
+    }
+  )
+
+  const totalPages = Math.ceil(
+    filteredCars.length / carsPerPage
+  )
+
+  const startIndex =
+    (currentPage - 1) * carsPerPage
+
+  const currentCars =
+    filteredCars.slice(
+      startIndex,
+      startIndex + carsPerPage
+    )
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-6">
-      <h1 className="text-3xl font-bold mb-6">
-        Inventario Hot Wheels
-      </h1>
+      <div className="max-w-7xl mx-auto">
 
-      <CarForm onCarCreated={loadCars} />
+        <h1 className="text-4xl font-bold mb-8">
+          Inventario Hot Wheels
+        </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cars.map((car) => (
-          <CarCard
-            key={car.id}
-            car={car}
-            onDelete={handleDelete}
+        <Filters
+          search={search}
+          setSearch={setSearch}
+          category={category}
+          setCategory={setCategory}
+          color={color}
+          setColor={setColor}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {currentCars.map((car) => (
+            <CarCard
+              key={car.id}
+              car={car}
+              onDelete={handleDelete}
+              onFavoriteToggle={loadCars}
+            />
+          ))}
+        </div>
+
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={
+              setCurrentPage
+            }
           />
-        ))}
+        )}
       </div>
     </div>
   )

@@ -1,8 +1,38 @@
-function CarCard({ car, onDelete }) {
+import { useNavigate } from 'react-router-dom'
+
+import { toggleFavorite } from '../services/carsService'
+
+function CarCard({
+  car,
+  onDelete,
+  onFavoriteToggle,
+}) {
+  const navigate = useNavigate()
+
+  const handleFavorite = async () => {
+    try {
+      await toggleFavorite(car)
+
+      if (onFavoriteToggle) {
+        onFavoriteToggle()
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-lg hover:scale-[1.02] transition">
       
-      <div className="h-48 bg-zinc-800 flex items-center justify-center">
+      <div className="h-48 bg-zinc-800 flex items-center justify-center relative">
+        
+        <button
+          onClick={handleFavorite}
+          className="absolute top-3 right-3 text-2xl"
+        >
+          {car.favorite ? '❤️' : '🤍'}
+        </button>
+
         <span className="text-zinc-500">
           Imagen próximamente
         </span>
@@ -19,12 +49,6 @@ function CarCard({ car, onDelete }) {
               {car.brand}
             </p>
           </div>
-
-          {car.favorite && (
-            <span className="text-red-500 text-xl">
-              ❤️
-            </span>
-          )}
         </div>
 
         <div className="mt-4 space-y-2 text-sm text-zinc-300">
@@ -63,7 +87,12 @@ function CarCard({ car, onDelete }) {
           </p>
 
           <div className="flex gap-2">
-            <button className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg text-sm font-medium transition">
+            <button
+              onClick={() =>
+                navigate(`/edit/${car.id}`)
+              }
+              className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg text-sm font-medium transition"
+            >
               Editar
             </button>
 

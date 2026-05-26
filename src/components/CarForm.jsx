@@ -1,24 +1,33 @@
 import { useState } from 'react'
-import { createCar } from '../services/carsService'
 
-function CarForm({ onCarCreated }) {
-  const [formData, setFormData] = useState({
-    internal_code: '',
-    name: '',
-    brand: '',
-    category: '',
-    type: '',
-    color: '',
-    estimated_price: '',
-    favorite: false,
-  })
+import {
+  createCar,
+} from '../services/carsService'
+
+function CarForm({
+  onCarCreated,
+}) {
+  const [formData, setFormData] =
+    useState({
+      name: '',
+      brand: '',
+      category: '',
+      type: '',
+      color: '',
+      estimated_price: '',
+      favorite: false,
+    })
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target
+    const { name, value, type, checked } =
+      e.target
 
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]:
+        type === 'checkbox'
+          ? checked
+          : value,
     })
   }
 
@@ -29,7 +38,6 @@ function CarForm({ onCarCreated }) {
       await createCar(formData)
 
       setFormData({
-        internal_code: '',
         name: '',
         brand: '',
         category: '',
@@ -48,22 +56,9 @@ function CarForm({ onCarCreated }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-zinc-900 p-6 rounded-2xl mb-8 border border-zinc-800"
+      className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800"
     >
-      <h2 className="text-2xl font-bold mb-6">
-        Agregar Hot Wheels
-      </h2>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input
-          type="text"
-          name="internal_code"
-          placeholder="Código interno"
-          value={formData.internal_code}
-          onChange={handleChange}
-          className="bg-zinc-800 p-3 rounded-lg"
-          required
-        />
 
         <input
           type="text"
@@ -84,23 +79,69 @@ function CarForm({ onCarCreated }) {
           className="bg-zinc-800 p-3 rounded-lg"
         />
 
-        <input
-          type="text"
-          name="category"
-          placeholder="Categoría"
-          value={formData.category}
-          onChange={handleChange}
-          className="bg-zinc-800 p-3 rounded-lg"
-        />
-
-        <input
-          type="text"
+        <select
           name="type"
-          placeholder="Tipo"
           value={formData.type}
           onChange={handleChange}
           className="bg-zinc-800 p-3 rounded-lg"
-        />
+          required
+        >
+          <option value="">
+            Selecciona tipo
+          </option>
+
+          <option value="Carro">
+            Carro
+          </option>
+
+          <option value="Moto">
+            Moto
+          </option>
+        </select>
+
+        <select
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          className="bg-zinc-800 p-3 rounded-lg"
+          required
+        >
+          <option value="">
+            Selecciona categoría
+          </option>
+
+          <option value="Básicos">
+            Básicos
+          </option>
+
+          <option value="Treasure Hunt">
+            Treasure Hunt
+          </option>
+
+          <option value="Super Treasure Hunt">
+            Super Treasure Hunt
+          </option>
+
+          <option value="Premium">
+            Premium
+          </option>
+
+          <option value="Red Line Club">
+            Red Line Club
+          </option>
+
+          <option value="Hot Wheels Collectors Special Edition">
+            Hot Wheels Collectors Special Edition
+          </option>
+
+          <option value="Ediciones especiales y conmemorativas">
+            Ediciones especiales y conmemorativas
+          </option>
+
+          <option value="Series temáticas">
+            Series temáticas
+          </option>
+        </select>
 
         <input
           type="text"
@@ -114,7 +155,7 @@ function CarForm({ onCarCreated }) {
         <input
           type="number"
           name="estimated_price"
-          placeholder="Precio estimado"
+          placeholder="Precio estimado (opcional)"
           value={formData.estimated_price}
           onChange={handleChange}
           className="bg-zinc-800 p-3 rounded-lg"
