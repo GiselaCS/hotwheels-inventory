@@ -8,6 +8,7 @@ const COLORS = [
 ]
 
 function DonutChart({ data, title }) {
+  if (!data || data.length === 0) return null
   const total = data.reduce((sum, d) => sum + parseInt(d.count), 0)
   if (total === 0) return null
 
@@ -82,7 +83,7 @@ function DonutChart({ data, title }) {
 }
 
 function FavoritesTable({ favorites }) {
-  if (favorites.length === 0)
+  if (!favorites || favorites.length === 0)
     return (
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
         <h3 className="text-lg font-semibold text-white mb-2">❤️ Favoritos</h3>
@@ -164,30 +165,39 @@ function Dashboard() {
       </div>
     )
 
-  if (!stats) return null
+  if (!stats)
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <p className="text-zinc-400">No se pudieron cargar las estadísticas.</p>
+      </div>
+    )
+
+  const byCategory = stats.by_category || []
+  const byColor = stats.by_color || []
+  const favorites = stats.favorites || []
 
   const kpis = [
     {
       label: 'Total de autos',
-      value: stats.total_cars,
+      value: stats.total_cars ?? 0,
       icon: '🚗',
       color: 'border-blue-500',
     },
     {
       label: 'Valor del inventario',
-      value: `$${(parseFloat(stats.total_value) || 0).toLocaleString('es-CO')}`,  // ← fix aquí
+      value: `$${(parseFloat(stats.total_value) || 0).toLocaleString('es-CO')}`,
       icon: '💰',
       color: 'border-green-500',
     },
     {
       label: 'Favoritos',
-      value: stats.total_favorites,
+      value: stats.total_favorites ?? 0,
       icon: '❤️',
       color: 'border-red-500',
     },
     {
       label: 'Categorías',
-      value: stats.by_category.length,
+      value: byCategory.length,
       icon: '🏷️',
       color: 'border-yellow-500',
     },
@@ -213,11 +223,11 @@ function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <DonutChart data={stats.by_category} title="🏷️ Distribución por categoría" />
-          <DonutChart data={stats.by_color} title="🎨 Distribución por color" />
+          <DonutChart data={byCategory} title="🏷️ Distribución por categoría" />
+          <DonutChart data={byColor} title="🎨 Distribución por color" />
         </div>
 
-        <FavoritesTable favorites={stats.favorites} />
+        <FavoritesTable favorites={favorites} />
 
       </div>
     </div>
