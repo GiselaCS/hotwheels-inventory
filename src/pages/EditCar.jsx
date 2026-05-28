@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getCars, updateCar } from '../services/carsService'
+import { getCarImages, uploadCarImage, deleteCarImage } from '../services/carImagesService'
 
 function EditCar() {
   const { id } = useParams()
@@ -13,6 +14,9 @@ function EditCar() {
 
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
+  const [extraImages, setExtraImages] = useState([])
+  const [newExtraImage, setNewExtraImage] = useState(null)
+  const [uploadingExtra, setUploadingExtra] = useState(false)
 
   useEffect(() => { loadCar() }, [])
 
@@ -24,6 +28,8 @@ function EditCar() {
         setFormData({ ...car, estimated_price: car.estimated_price || '' })
         if (car.image_url) setImagePreview(car.image_url)
       }
+      const imgs = await getCarImages(id)
+      setExtraImages(imgs)
     } catch (error) {
       console.error(error)
     }
@@ -42,13 +48,43 @@ function EditCar() {
     }
   }
 
+  const handleExtraImageChange = (e) => {
+    const file = e.target.files[0]
+    if (file) setNewExtraImage(file)
+  }
+
+  const handleUploadExtra = async () => {
+    if (!newExtraImage) return
+    setUploadingExtra(true)
+    try {
+      await uploadCarImage(id, newExtraImage)
+      setNewExtraImage(null)
+      const imgs = await getCarImages(id)
+      setExtraImages(imgs)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setUploadingExtra(false)
+    }
+  }
+
+  const handleDeleteExtra = async (imageId) => {
+    if (!window.confirm('¿Eliminar esta imagen?')) return
+    try {
+      await deleteCarImage(imageId)
+      setExtraImages(extraImages.filter((img) => img.id !== imageId))
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
       await updateCar(id, {
         ...formData,
         estimated_price: formData.estimated_price === '' ? null : formData.estimated_price,
-        image: imageFile, // null si no se cambió → backend conserva la anterior
+        image: imageFile,
       })
       navigate('/')
     } catch (error) {
@@ -101,20 +137,63 @@ function EditCar() {
               value={formData.estimated_price} onChange={handleChange}
               className="bg-zinc-800 p-3 rounded-lg" />
 
-            {/* ── Campo de imagen ── */}
+            {/* Imagen principal */}
             <div className="md:col-span-2">
               <label className="block text-zinc-400 text-sm mb-2">
-                Imagen del auto (dejar vacío para mantener la actual)
+                Imagen principal (dejar vacío para mantener la actual)
               </label>
-              <input
-                type="file" accept="image/*"
-                onChange={handleImageChange}
-                className="bg-zinc-800 p-3 rounded-lg w-full text-zinc-300 file:mr-4 file:py-1 file:px-4 file:rounded-lg file:border-0 file:bg-blue-500 file:text-white file:cursor-pointer"
-              />
+              <input type="file" accept="image/*" onChange={handleImageChange}
+                className="bg-zinc-800 p-3 rounded-lg w-full text-zinc-300 file:mr-4 file:py-1 file:px-4 file:rounded-lg file:border-0 file:bg-blue-500 file:text-white file:cursor-pointer" />
               {imagePreview && (
                 <img src={imagePreview} alt="Preview"
                   className="mt-3 h-40 object-contain rounded-lg border border-zinc-700" />
               )}
+            </div>
+
+            {/* Imágenes adicionales */}
+            <div className="md:col-span-2 border-t border-zinc-700 pt-4">
+              <label className="block text-zinc-400 text-sm mb-3">
+                Imágenes adicionales
+              </label>
+
+              {/* Galería de imágenes extra existentes */}
+              {extraImages.length > 0 && (
+                <div className="flex flex-wrap gap-3 mb-4">
+                  {extraImages.map((img) => (
+                    <div key={img.id} className="relative group">
+                      <img
+                        src={img.image_url}
+                        alt="extra"
+                        className="h-24 w-24 object-cover rounded-lg border border-zinc-700"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteExtra(img.id)}
+                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Subir nueva imagen adicional */}
+              <div className="flex gap-3 items-center">
+                <input
+                  type="file" accept="image/*"
+                  onChange={handleExtraImageChange}
+                  className="bg-zinc-800 p-2 rounded-lg text-zinc-300 text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-zinc-600 file:text-white file:cursor-pointer flex-1"
+                />
+                <button
+                  type="button"
+                  onClick={handleUploadExtra}
+                  disabled={!newExtraImage || uploadingExtra}
+                  className="bg-green-600 hover:bg-green-700 disabled:bg-zinc-700 disabled:cursor-not-allowed px-4 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap"
+                >
+                  {uploadingExtra ? 'Subiendo...' : '+ Agregar'}
+                </button>
+              </div>
             </div>
           </div>
 

@@ -3,8 +3,9 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import pkg from 'pg'
 import jwt from 'jsonwebtoken'
-import upload from './middleware/upload.js'      // ← ruta corregida
-import authRoutes from './routes/authRoutes.js'  // ← ruta corregida
+import upload from './middleware/upload.js'
+import authRoutes from './routes/authRoutes.js'
+import carImagesRoutes from './routes/carImagesRoutes.js' // ← nuevo
 
 dotenv.config()
 
@@ -19,7 +20,6 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false },
 })
 
-// ─── Middleware de autenticación ──────────────────────────────────
 const authenticate = (req, res, next) => {
   const authHeader = req.headers.authorization
 
@@ -37,8 +37,8 @@ const authenticate = (req, res, next) => {
   }
 }
 
-// ─── Rutas ────────────────────────────────────────────────────────
 app.use('/auth', authRoutes)
+app.use('/car-images', authenticate, carImagesRoutes) // ← nuevo
 
 app.get('/', (req, res) => {
   res.json({ message: 'Backend funcionando 🚗' })
