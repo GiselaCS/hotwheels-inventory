@@ -23,29 +23,27 @@ export const handler = async (event) => {
   if (event.httpMethod !== 'POST')
     return { statusCode: 405, headers, body: JSON.stringify({ message: 'Método no permitido' }) }
 
-  // Crear tabla si no existe (dentro del handler, sin top-level await)
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS users (
-      id SERIAL PRIMARY KEY,
-      email VARCHAR(255) UNIQUE NOT NULL,
-      password VARCHAR(255) NOT NULL,
-      created_at TIMESTAMP DEFAULT NOW()
-    )
-  `)
-
   try {
-    const { email, password } = JSON.parse(event.body)
+    const body = JSON.parse(event.body)
+    const { email, password } = body
+
+    console.log('Email recibido:', email)
+    console.log('Password recibido:', password ? 'SÍ' : 'NO')
 
     if (!email || !password)
       return { statusCode: 400, headers, body: JSON.stringify({ message: 'Email y contraseña son requeridos' }) }
 
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email])
+    console.log('Usuario encontrado:', result.rows.length > 0)
 
     if (result.rows.length === 0)
       return { statusCode: 401, headers, body: JSON.stringify({ message: 'Credenciales inválidas' }) }
 
     const user = result.rows[0]
+    console.log('Hash en DB:', user.password?.substring(0, 20))
+
     const validPassword = await bcrypt.compare(password, user.password)
+    console.log('Password válido:', validPassword)
 
     if (!validPassword)
       return { statusCode: 401, headers, body: JSON.stringify({ message: 'Credenciales inválidas' }) }
@@ -62,7 +60,7 @@ export const handler = async (event) => {
       body: JSON.stringify({ token, user: { id: user.id, email: user.email } }),
     }
   } catch (error) {
-    console.error(error)
-    return { statusCode: 500, headers, body: JSON.stringify({ message: 'Error en el servidor' }) }
+    console.error('Error completo:', error.message)
+    return { statusCode: 500, headers, body: JSON.stringify({ message: error.message }) }
   }
 }
