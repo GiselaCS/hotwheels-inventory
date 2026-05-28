@@ -4,15 +4,11 @@
 
 [functions]
   directory = "netlify/functions"
-  node_bundler = "esbuild"
 
 [dev]
   command = "npm run dev"
   port = 8888
   targetPort = 5173
-
-[[plugins]]
-  package = "@netlify/plugin-functions-install-core"
 
 [[redirects]]
   from = "/api/*"
