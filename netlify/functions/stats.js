@@ -8,12 +8,6 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false },
 })
 
-const authenticate = (event) => {
-  const auth = event.headers.authorization || event.headers.Authorization
-  if (!auth || !auth.startsWith('Bearer ')) throw new Error('Token requerido')
-  return jwt.verify(auth.split(' ')[1], process.env.JWT_SECRET)
-}
-
 const headers = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
@@ -25,11 +19,21 @@ export const handler = async (event) => {
   if (event.httpMethod === 'OPTIONS')
     return { statusCode: 200, headers, body: '' }
 
-  try { authenticate(event) }
-  catch { return { statusCode: 401, headers, body: JSON.stringify({ message: 'No autorizado' }) } }
+  // Verificar token
+  try {
+    const auth = event.headers.authorization || event.headers.Authorization
+    if (!auth || !auth.startsWith('Bearer ')) throw new Error('Token requerido')
+    jwt.verify(auth.split(' ')[1], process.env.JWT_SECRET)
+  } catch {
+    return { statusCode: 401, headers, body: JSON.stringify({ message: 'No autorizado' }) }
+  }
 
   try {
+    console.log('Consultando stats...')
+
     const totalCars = await pool.query('SELECT COUNT(*) FROM cars')
+    console.log('Total cars:', totalCars.rows[0].count)
+
     const totalValue = await pool.query('SELECT SUM(estimated_price) FROM cars')
     const totalFavorites = await pool.query('SELECT COUNT(*) FROM cars WHERE favorite = true')
 
@@ -50,20 +54,24 @@ export const handler = async (event) => {
       FROM cars WHERE favorite = true ORDER BY internal_code ASC
     `)
 
+    const response = {
+      total_cars: parseInt(totalCars.rows[0].count),
+      total_value: parseFloat(totalValue.rows[0].sum) || 0,
+      total_favorites: parseInt(totalFavorites.rows[0].count),
+      by_category: byCategory.rows,
+      by_color: byColor.rows,
+      favorites: favorites.rows,
+    }
+
+    console.log('Response:', JSON.stringify(response))
+
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({
-        total_cars: parseInt(totalCars.rows[0].count),
-        total_value: parseFloat(totalValue.rows[0].sum) || 0,
-        total_favorites: parseInt(totalFavorites.rows[0].count),
-        by_category: byCategory.rows,
-        by_color: byColor.rows,
-        favorites: favorites.rows,
-      }),
+      body: JSON.stringify(response),
     }
   } catch (error) {
-    console.error(error)
+    console.error('Error stats:', error.message)
     return { statusCode: 500, headers, body: JSON.stringify({ message: error.message }) }
   }
 }
