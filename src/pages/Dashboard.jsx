@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react'
 import { getStats } from '../services/statsService'
 
-// Paleta de colores para las gráficas
 const COLORS = [
   '#ef4444', '#f97316', '#eab308',
   '#22c55e', '#3b82f6', '#8b5cf6',
   '#ec4899', '#14b8a6',
 ]
 
-// ── Gráfica de dona ──────────────────────────────────────────────
 function DonutChart({ data, title }) {
   const total = data.reduce((sum, d) => sum + parseInt(d.count), 0)
   if (total === 0) return null
@@ -24,21 +22,13 @@ function DonutChart({ data, title }) {
     const offset = circumference * (1 - cumulative)
     const dash = circumference * pct
     cumulative += pct
-    return {
-      ...item,
-      pct,
-      offset,
-      dash,
-      chartColor: COLORS[i % COLORS.length], // ← renombrado para no pisar el campo 'color' del dato
-    }
+    return { ...item, pct, offset, dash, chartColor: COLORS[i % COLORS.length] }
   })
 
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
       <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
       <div className="flex flex-col md:flex-row items-center gap-6">
-
-        {/* Dona */}
         <div className="flex-shrink-0">
           <svg width="160" height="160" viewBox="0 0 160 160">
             {slices.map((slice, i) => (
@@ -47,7 +37,7 @@ function DonutChart({ data, title }) {
                 cx={cx} cy={cy}
                 r={radius}
                 fill="none"
-                stroke={slice.chartColor}  // ← usa chartColor
+                stroke={slice.chartColor}
                 strokeWidth="28"
                 strokeDasharray={`${slice.dash} ${circumference - slice.dash}`}
                 strokeDashoffset={slice.offset}
@@ -65,16 +55,14 @@ function DonutChart({ data, title }) {
           </svg>
         </div>
 
-        {/* Leyenda */}
         <div className="flex flex-col gap-2 w-full">
           {slices.map((slice, i) => (
             <div key={i} className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
                 <div
                   className="w-3 h-3 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: slice.chartColor }}  // ← usa chartColor
+                  style={{ backgroundColor: slice.chartColor }}
                 />
-                {/* ← ahora lee el campo correcto según qué gráfica es */}
                 <span className="text-zinc-300 text-sm truncate">
                   {slice.category ?? slice.color}
                 </span>
@@ -93,7 +81,6 @@ function DonutChart({ data, title }) {
   )
 }
 
-// ── Tabla de favoritos ───────────────────────────────────────────
 function FavoritesTable({ favorites }) {
   if (favorites.length === 0)
     return (
@@ -124,21 +111,12 @@ function FavoritesTable({ favorites }) {
           </thead>
           <tbody>
             {favorites.map((car) => (
-              <tr
-                key={car.id}
-                className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition"
-              >
+              <tr key={car.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition">
                 <td className="py-3 pr-4">
                   {car.image_url ? (
-                    <img
-                      src={car.image_url}
-                      alt={car.name}
-                      className="w-10 h-10 object-cover rounded-lg"
-                    />
+                    <img src={car.image_url} alt={car.name} className="w-10 h-10 object-cover rounded-lg" />
                   ) : (
-                    <div className="w-10 h-10 bg-zinc-700 rounded-lg flex items-center justify-center text-xs text-zinc-500">
-                      —
-                    </div>
+                    <div className="w-10 h-10 bg-zinc-700 rounded-lg flex items-center justify-center text-xs text-zinc-500">—</div>
                   )}
                 </td>
                 <td className="py-3 pr-4 text-zinc-400 font-mono">{car.internal_code}</td>
@@ -162,14 +140,11 @@ function FavoritesTable({ favorites }) {
   )
 }
 
-// ── Dashboard principal ──────────────────────────────────────────
 function Dashboard() {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    loadStats()
-  }, [])
+  useEffect(() => { loadStats() }, [])
 
   const loadStats = async () => {
     try {
@@ -200,7 +175,7 @@ function Dashboard() {
     },
     {
       label: 'Valor del inventario',
-      value: `$${stats.total_value.toLocaleString('es-CO')}`,
+      value: `$${(parseFloat(stats.total_value) || 0).toLocaleString('es-CO')}`,  // ← fix aquí
       icon: '💰',
       color: 'border-green-500',
     },
@@ -227,13 +202,9 @@ function Dashboard() {
           <p className="text-zinc-400 mt-1">Resumen de tu colección Hot Wheels</p>
         </div>
 
-        {/* KPIs */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {kpis.map((kpi) => (
-            <div
-              key={kpi.label}
-              className={`bg-zinc-900 border-l-4 ${kpi.color} rounded-2xl p-5`}
-            >
+            <div key={kpi.label} className={`bg-zinc-900 border-l-4 ${kpi.color} rounded-2xl p-5`}>
               <div className="text-3xl mb-2">{kpi.icon}</div>
               <div className="text-2xl font-bold text-white">{kpi.value}</div>
               <div className="text-zinc-400 text-sm mt-1">{kpi.label}</div>
@@ -241,19 +212,11 @@ function Dashboard() {
           ))}
         </div>
 
-        {/* Gráficas */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <DonutChart
-            data={stats.by_category}
-            title="🏷️ Distribución por categoría"
-          />
-          <DonutChart
-            data={stats.by_color}
-            title="🎨 Distribución por color"
-          />
+          <DonutChart data={stats.by_category} title="🏷️ Distribución por categoría" />
+          <DonutChart data={stats.by_color} title="🎨 Distribución por color" />
         </div>
 
-        {/* Tabla de favoritos */}
         <FavoritesTable favorites={stats.favorites} />
 
       </div>

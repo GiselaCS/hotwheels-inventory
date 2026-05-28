@@ -30,13 +30,19 @@
 
 [[redirects]]
   from = "/api/cars/*"
-  to = "/.netlify/functions/cars/:splat"
+  to = "/.netlify/functions/cars"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/car-images"
+  to = "/.netlify/functions/car-images"
   status = 200
   force = true
 
 [[redirects]]
   from = "/api/car-images/*"
-  to = "/.netlify/functions/car-images/:splat"
+  to = "/.netlify/functions/car-images"
   status = 200
   force = true
 
