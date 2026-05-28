@@ -73,9 +73,15 @@ export const handler = async (event) => {
   try { authenticate(event) }
   catch { return { statusCode: 401, headers, body: JSON.stringify({ message: 'No autorizado' }) } }
 
-  const path = event.path.replace('/.netlify/functions/car-images', '')
-  const parts = path.split('/').filter(Boolean)
   const method = event.httpMethod
+
+  // Extraer parts del path — funciona con /api/car-images/5 y /.netlify/functions/car-images/5
+  const rawPath = event.path
+  const parts = rawPath.split('/').filter(p => p && p !== 'api' && p !== 'car-images' && p !== '.netlify' && p !== 'functions')
+
+  console.log('Path:', rawPath)
+  console.log('Parts:', parts)
+  console.log('Method:', method)
 
   try {
     // GET /api/car-images/:carId
@@ -127,9 +133,9 @@ export const handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify({ message: 'Imagen eliminada' }) }
     }
 
-    return { statusCode: 404, headers, body: JSON.stringify({ message: 'Ruta no encontrada' }) }
+    return { statusCode: 404, headers, body: JSON.stringify({ message: 'Ruta no encontrada', rawPath, parts }) }
   } catch (error) {
     console.error(error)
-    return { statusCode: 500, headers, body: JSON.stringify({ message: 'Error en el servidor' }) }
+    return { statusCode: 500, headers, body: JSON.stringify({ message: error.message }) }
   }
 }

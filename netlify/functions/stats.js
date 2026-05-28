@@ -64,6 +64,6 @@ export const handler = async (event) => {
     }
   } catch (error) {
     console.error(error)
-    return { statusCode: 500, headers, body: JSON.stringify({ message: 'Error al obtener estadísticas' }) }
+    return { statusCode: 500, headers, body: JSON.stringify({ message: error.message }) }
   }
 }
