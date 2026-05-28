@@ -11,9 +11,46 @@
   targetPort = 5173
 
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
+  from = "/api/auth"
+  to = "/.netlify/functions/auth"
   status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/auth/*"
+  to = "/.netlify/functions/auth"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/cars"
+  to = "/.netlify/functions/cars"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/cars/*"
+  to = "/.netlify/functions/cars/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/car-images/*"
+  to = "/.netlify/functions/car-images/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/stats"
+  to = "/.netlify/functions/stats"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/hash"
+  to = "/.netlify/functions/hash"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/*"
