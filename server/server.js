@@ -129,5 +129,49 @@ app.delete('/cars/:id', authenticate, async (req, res) => {
   }
 })
 
+// GET /stats → estadísticas para el dashboard
+app.get('/stats', authenticate, async (req, res) => {
+  try {
+    const totalCars = await pool.query('SELECT COUNT(*) FROM cars')
+    const totalValue = await pool.query('SELECT SUM(estimated_price) FROM cars')
+    const totalFavorites = await pool.query('SELECT COUNT(*) FROM cars WHERE favorite = true')
+
+    const byCategory = await pool.query(`
+      SELECT category, COUNT(*) as count
+      FROM cars
+      WHERE category IS NOT NULL AND category != ''
+      GROUP BY category
+      ORDER BY count DESC
+    `)
+
+    const byColor = await pool.query(`
+      SELECT color, COUNT(*) as count
+      FROM cars
+      WHERE color IS NOT NULL AND color != ''
+      GROUP BY color
+      ORDER BY count DESC
+      LIMIT 8
+    `)
+
+    const favorites = await pool.query(`
+      SELECT id, internal_code, name, brand, category, color, estimated_price, image_url
+      FROM cars
+      WHERE favorite = true
+      ORDER BY internal_code ASC
+    `)
+
+    res.json({
+      total_cars: parseInt(totalCars.rows[0].count),
+      total_value: parseFloat(totalValue.rows[0].sum) || 0,
+      total_favorites: parseInt(totalFavorites.rows[0].count),
+      by_category: byCategory.rows,
+      by_color: byColor.rows,
+      favorites: favorites.rows,
+    })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Error al obtener estadísticas' })
+  }
+})
 const PORT = 5000
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`))

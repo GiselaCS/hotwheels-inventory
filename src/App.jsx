@@ -12,6 +12,7 @@ import CreateCar from './pages/CreateCar'
 import Favorites from './pages/Favorites'
 import EditCar from './pages/EditCar'
 import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
 
 function App() {
   return (
@@ -62,6 +63,17 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+  path="/dashboard"
+  element={
+    <ProtectedRoute>
+      <>
+        <Navbar />
+        <Dashboard />
+      </>
+    </ProtectedRoute>
+  }
+/>
 
           <Route
             path="/edit/:id"

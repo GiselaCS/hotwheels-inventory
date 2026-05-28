@@ -31,6 +31,13 @@ function Navbar() {
           >
             Favoritos
           </Link>
+          
+          <Link
+            to="/dashboard"
+            className="hover:text-red-400 transition"
+          >
+            Dashboard
+          </Link>
 
           <Link
             to="/create"
