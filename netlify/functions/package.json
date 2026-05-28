@@ -1,3 +1,12 @@
 {
-  "type": "module"
+  "name": "netlify-functions",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "busboy": "^1.6.0",
+    "cloudinary": "^2.10.0",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.21.0"
+  }
 }
