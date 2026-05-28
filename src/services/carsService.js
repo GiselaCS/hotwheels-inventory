@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { getToken } from './authService'
 
-const API_URL = 'http://localhost:5000/cars'
+//const API_URL = 'http://localhost:5000/cars'
+const API_URL = '/api/cars'
 
 // Header con JWT para todas las peticiones
 const authHeader = () => ({
