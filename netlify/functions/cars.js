@@ -36,7 +36,6 @@ const parseMultipart = (event) => {
     })
 
     bb.on('field', (name, val) => { fields[name] = val })
-
     bb.on('file', (name, stream, info) => {
       fileName = info.filename
       fileMime = info.mimeType
@@ -44,7 +43,6 @@ const parseMultipart = (event) => {
       stream.on('data', (chunk) => chunks.push(chunk))
       stream.on('end', () => { fileBuffer = Buffer.concat(chunks) })
     })
-
     bb.on('finish', () => resolve({ fields, fileBuffer, fileName, fileMime }))
     bb.on('error', reject)
 
@@ -57,7 +55,7 @@ const parseMultipart = (event) => {
   })
 }
 
-const uploadToCloudinary = (buffer, mimetype) => {
+const uploadToCloudinary = (buffer) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       { folder: 'hotwheels' },
@@ -88,9 +86,19 @@ export const handler = async (event) => {
   }
 
   const method = event.httpMethod
-  // El id viene en el path: /api/cars/123
-  const pathParts = event.path.replace('/.netlify/functions/cars', '').split('/').filter(Boolean)
-  const id = pathParts[0] || null
+
+  // Extraer ID del path — funciona tanto con /api/cars/123 como con /.netlify/functions/cars/123
+  const path = event.path
+  const pathParts = path.split('/').filter(Boolean)
+  // El id es el último segmento si no es 'cars' ni 'functions'
+  const lastSegment = pathParts[pathParts.length - 1]
+  const id = (lastSegment && lastSegment !== 'cars' && isNaN(lastSegment) === false)
+    ? lastSegment
+    : null
+
+  console.log('Path:', path)
+  console.log('Method:', method)
+  console.log('ID:', id)
 
   try {
     // GET /api/cars
@@ -108,7 +116,7 @@ export const handler = async (event) => {
         const parsed = await parseMultipart(event)
         fields = parsed.fields
         if (parsed.fileBuffer) {
-          const uploaded = await uploadToCloudinary(parsed.fileBuffer, parsed.fileMime)
+          const uploaded = await uploadToCloudinary(parsed.fileBuffer)
           imageUrl = uploaded.secure_url
         }
       } else {
@@ -140,7 +148,7 @@ export const handler = async (event) => {
         const parsed = await parseMultipart(event)
         fields = parsed.fields
         if (parsed.fileBuffer) {
-          const uploaded = await uploadToCloudinary(parsed.fileBuffer, parsed.fileMime)
+          const uploaded = await uploadToCloudinary(parsed.fileBuffer)
           imageUrl = uploaded.secure_url
         } else {
           const current = await pool.query('SELECT image_url FROM cars WHERE id = $1', [id])
@@ -169,10 +177,10 @@ export const handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify({ message: 'Carro eliminado correctamente' }) }
     }
 
-    return { statusCode: 404, headers, body: JSON.stringify({ message: 'Ruta no encontrada' }) }
+    return { statusCode: 404, headers, body: JSON.stringify({ message: 'Ruta no encontrada', path, method, id }) }
 
   } catch (error) {
     console.error(error)
-    return { statusCode: 500, headers, body: JSON.stringify({ message: 'Error en el servidor' }) }
+    return { statusCode: 500, headers, body: JSON.stringify({ message: error.message }) }
   }
 }
