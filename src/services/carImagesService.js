@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { getToken } from './authService'
 
-//const API_URL = 'http://localhost:5000/car-images'
 const API_URL = '/api/car-images'
 
 const authHeader = () => ({
@@ -30,4 +29,7 @@ export const uploadCarImage = async (carId, imageFile) => {
 export const deleteCarImage = async (imageId) => {
   const response = await axios.delete(
     `${API_URL}/image/${imageId}`,
-    authHeader(
+    authHeader()
+  )
+  return response.data
+}
