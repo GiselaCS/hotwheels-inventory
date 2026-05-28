@@ -1,28 +1,17 @@
 import { useEffect, useState } from 'react'
-
-import {
-  getCars,
-  deleteCar,
-} from '../services/carsService'
-
+import { getCars, deleteCar } from '../services/carsService'
 import CarCard from '../components/CarCard'
 import Filters from '../components/Filters'
 import Pagination from '../components/Pagination'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 function Inventory() {
   const [cars, setCars] = useState([])
-
-  const [search, setSearch] =
-    useState('')
-
-  const [category, setCategory] =
-    useState('')
-
-  const [color, setColor] =
-    useState('')
-
-  const [currentPage, setCurrentPage] =
-    useState(1)
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [category, setCategory] = useState('')
+  const [color, setColor] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
 
   const carsPerPage = 12
 
@@ -36,16 +25,14 @@ function Inventory() {
       setCars(data)
     } catch (error) {
       console.error(error)
+    } finally {
+      setLoading(false)
     }
   }
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      '¿Seguro que deseas eliminar este carro?'
-    )
-
+    const confirmDelete = window.confirm('¿Seguro que deseas eliminar este carro?')
     if (!confirmDelete) return
-
     try {
       await deleteCar(id)
       loadCars()
@@ -54,51 +41,23 @@ function Inventory() {
     }
   }
 
-  const filteredCars = cars.filter(
-    (car) => {
-      const matchSearch =
-        car.name
-          .toLowerCase()
-          .includes(search.toLowerCase())
+  if (loading) return <LoadingSpinner message="Cargando inventario..." />
 
-      const matchCategory =
-        category === '' ||
-        car.category === category
+  const filteredCars = cars.filter((car) => {
+    const matchSearch = car.name.toLowerCase().includes(search.toLowerCase())
+    const matchCategory = category === '' || car.category === category
+    const matchColor = color === '' || car.color.toLowerCase().includes(color.toLowerCase())
+    return matchSearch && matchCategory && matchColor
+  })
 
-      const matchColor =
-        color === '' ||
-        car.color
-          .toLowerCase()
-          .includes(color.toLowerCase())
-
-      return (
-        matchSearch &&
-        matchCategory &&
-        matchColor
-      )
-    }
-  )
-
-  const totalPages = Math.ceil(
-    filteredCars.length / carsPerPage
-  )
-
-  const startIndex =
-    (currentPage - 1) * carsPerPage
-
-  const currentCars =
-    filteredCars.slice(
-      startIndex,
-      startIndex + carsPerPage
-    )
+  const totalPages = Math.ceil(filteredCars.length / carsPerPage)
+  const startIndex = (currentPage - 1) * carsPerPage
+  const currentCars = filteredCars.slice(startIndex, startIndex + carsPerPage)
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-6">
       <div className="max-w-7xl mx-auto">
-
-        <h1 className="text-4xl font-bold mb-8">
-          Inventario Hot Wheels
-        </h1>
+        <h1 className="text-4xl font-bold mb-8">Inventario Hot Wheels</h1>
 
         <Filters
           search={search}
@@ -124,9 +83,7 @@ function Inventory() {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            setCurrentPage={
-              setCurrentPage
-            }
+            setCurrentPage={setCurrentPage}
           />
         )}
       </div>

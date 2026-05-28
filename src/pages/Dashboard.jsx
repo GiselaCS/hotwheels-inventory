@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getStats } from '../services/statsService'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 const COLORS = [
   '#ef4444', '#f97316', '#eab308',
@@ -158,12 +159,7 @@ function Dashboard() {
     }
   }
 
-  if (loading)
-    return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <p className="text-zinc-400 animate-pulse">Cargando estadísticas...</p>
-      </div>
-    )
+  if (loading) return <LoadingSpinner message="Cargando estadísticas..." />
 
   if (!stats)
     return (
