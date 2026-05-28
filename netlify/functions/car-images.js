@@ -17,8 +17,17 @@ cloudinary.config({
 })
 
 const authenticate = (event) => {
-  const auth = event.headers.authorization || event.headers.Authorization
-  if (!auth || !auth.startsWith('Bearer ')) throw new Error('Token requerido')
+  const auth =
+    event.headers['authorization'] ||
+    event.headers['Authorization'] ||
+    event.headers['AUTHORIZATION']
+
+  console.log('Headers recibidos:', Object.keys(event.headers))
+  console.log('Auth:', auth ? 'presente' : 'ausente')
+
+  if (!auth || !auth.startsWith('Bearer '))
+    throw new Error('Token requerido')
+
   return jwt.verify(auth.split(' ')[1], process.env.JWT_SECRET)
 }
 
@@ -71,15 +80,20 @@ export const handler = async (event) => {
     return { statusCode: 200, headers, body: '' }
 
   try { authenticate(event) }
-  catch { return { statusCode: 401, headers, body: JSON.stringify({ message: 'No autorizado' }) } }
+  catch (e) {
+    console.error('Auth error:', e.message)
+    return { statusCode: 401, headers, body: JSON.stringify({ message: 'No autorizado' }) }
+  }
 
   const method = event.httpMethod
-
-  // Extraer parts del path — funciona con /api/car-images/5 y /.netlify/functions/car-images/5
   const rawPath = event.path
-  const parts = rawPath.split('/').filter(p => p && p !== 'api' && p !== 'car-images' && p !== '.netlify' && p !== 'functions')
 
-  console.log('Path:', rawPath)
+  // Extraer segmentos después de 'car-images'
+  const allParts = rawPath.split('/').filter(Boolean)
+  const carImagesIndex = allParts.findIndex(p => p === 'car-images')
+  const parts = carImagesIndex >= 0 ? allParts.slice(carImagesIndex + 1) : allParts
+
+  console.log('Raw path:', rawPath)
   console.log('Parts:', parts)
   console.log('Method:', method)
 
@@ -100,7 +114,10 @@ export const handler = async (event) => {
         return { statusCode: 400, headers, body: JSON.stringify({ message: 'No se envió imagen' }) }
 
       const uploaded = await uploadToCloudinary(fileBuffer)
-      const countResult = await pool.query('SELECT COUNT(*) FROM car_images WHERE car_id = $1', [parts[0]])
+      const countResult = await pool.query(
+        'SELECT COUNT(*) FROM car_images WHERE car_id = $1',
+        [parts[0]]
+      )
       const orderIndex = parseInt(countResult.rows[0].count)
 
       const result = await pool.query(
@@ -112,7 +129,10 @@ export const handler = async (event) => {
 
     // DELETE /api/car-images/image/:imageId
     if (method === 'DELETE' && parts[0] === 'image' && parts[1]) {
-      const imageResult = await pool.query('SELECT * FROM car_images WHERE id = $1', [parts[1]])
+      const imageResult = await pool.query(
+        'SELECT * FROM car_images WHERE id = $1',
+        [parts[1]]
+      )
       if (imageResult.rows.length === 0)
         return { statusCode: 404, headers, body: JSON.stringify({ message: 'Imagen no encontrada' }) }
 
@@ -127,7 +147,10 @@ export const handler = async (event) => {
         [image.car_id]
       )
       for (let i = 0; i < remaining.rows.length; i++) {
-        await pool.query('UPDATE car_images SET order_index = $1 WHERE id = $2', [i, remaining.rows[i].id])
+        await pool.query(
+          'UPDATE car_images SET order_index = $1 WHERE id = $2',
+          [i, remaining.rows[i].id]
+        )
       }
 
       return { statusCode: 200, headers, body: JSON.stringify({ message: 'Imagen eliminada' }) }
@@ -135,7 +158,7 @@ export const handler = async (event) => {
 
     return { statusCode: 404, headers, body: JSON.stringify({ message: 'Ruta no encontrada', rawPath, parts }) }
   } catch (error) {
-    console.error(error)
+    console.error('Error:', error.message)
     return { statusCode: 500, headers, body: JSON.stringify({ message: error.message }) }
   }
 }
