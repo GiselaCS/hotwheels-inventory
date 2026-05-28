@@ -84,6 +84,9 @@ function DonutChart({ data, title }) {
 }
 
 function FavoritesTable({ favorites }) {
+  const [page, setPage] = useState(1)
+  const perPage = 8
+
   if (!favorites || favorites.length === 0)
     return (
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
@@ -91,6 +94,9 @@ function FavoritesTable({ favorites }) {
         <p className="text-zinc-500 text-sm">No tienes autos marcados como favoritos.</p>
       </div>
     )
+
+  const totalPages = Math.ceil(favorites.length / perPage)
+  const paginated = favorites.slice((page - 1) * perPage, page * perPage)
 
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
@@ -112,7 +118,7 @@ function FavoritesTable({ favorites }) {
             </tr>
           </thead>
           <tbody>
-            {favorites.map((car) => (
+            {paginated.map((car) => (
               <tr key={car.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition">
                 <td className="py-3 pr-4">
                   {car.image_url ? (
@@ -138,6 +144,44 @@ function FavoritesTable({ favorites }) {
           </tbody>
         </table>
       </div>
+
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-zinc-800">
+          <p className="text-zinc-500 text-sm">
+            Página {page} de {totalPages}
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed transition text-sm"
+            >
+              ← Anterior
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPage(p)}
+                className={`px-3 py-1.5 rounded-lg text-sm transition ${
+                  p === page
+                    ? 'bg-red-500 text-white'
+                    : 'bg-zinc-800 hover:bg-zinc-700'
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed transition text-sm"
+            >
+              Siguiente →
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -173,30 +217,10 @@ function Dashboard() {
   const favorites = stats.favorites || []
 
   const kpis = [
-    {
-      label: 'Total de autos',
-      value: stats.total_cars ?? 0,
-      icon: '🚗',
-      color: 'border-blue-500',
-    },
-    {
-      label: 'Valor del inventario',
-      value: `$${(parseFloat(stats.total_value) || 0).toLocaleString('es-CO')}`,
-      icon: '💰',
-      color: 'border-green-500',
-    },
-    {
-      label: 'Favoritos',
-      value: stats.total_favorites ?? 0,
-      icon: '❤️',
-      color: 'border-red-500',
-    },
-    {
-      label: 'Categorías',
-      value: byCategory.length,
-      icon: '🏷️',
-      color: 'border-yellow-500',
-    },
+    { label: 'Total de autos', value: stats.total_cars ?? 0, icon: '🚗', color: 'border-blue-500' },
+    { label: 'Valor del inventario', value: `$${(parseFloat(stats.total_value) || 0).toLocaleString('es-CO')}`, icon: '💰', color: 'border-green-500' },
+    { label: 'Favoritos', value: stats.total_favorites ?? 0, icon: '❤️', color: 'border-red-500' },
+    { label: 'Categorías', value: byCategory.length, icon: '🏷️', color: 'border-yellow-500' },
   ]
 
   return (
