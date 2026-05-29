@@ -36,8 +36,8 @@ function Filters({
             Básicos
           </option>
 
-          <option value="Treasure Hunt">
-            Treasure Hunt
+          <option value="Team Transport">
+            Team Transport
           </option>
 
           <option value="Super Treasure Hunt">

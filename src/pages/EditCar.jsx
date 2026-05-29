@@ -120,7 +120,7 @@ function EditCar() {
               className="bg-zinc-800 p-3 rounded-lg">
               <option value="">Selecciona categoría</option>
               <option value="Básicos">Básicos</option>
-              <option value="Treasure Hunt">Treasure Hunt</option>
+              <option value="Team Transport">Team Transport</option>
               <option value="Super Treasure Hunt">Super Treasure Hunt</option>
               <option value="Premium">Premium</option>
               <option value="Red Line Club">Red Line Club</option>
