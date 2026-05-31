@@ -5,12 +5,12 @@ import LoadingSpinner from '../components/LoadingSpinner'
 const CATEGORIES = ['Básicos', 'Team Transport', 'Super Treasure Hunt', 'Premium', 'Red Line Club', 'Hot Wheels Collectors Special Edition', 'Ediciones especiales y conmemorativas', 'Series temáticas']
 
 // ── Estadísticas ─────────────────────────────────────────────────
-function PendingStats({ cars }) {
-  const total = cars.length
-  const unpaidValue = cars
+function PendingStats({ filtered }) {
+  const total = filtered.length
+  const unpaidValue = filtered
     .filter(c => !c.paid)
     .reduce((sum, c) => sum + (parseFloat(c.pending_balance) || parseFloat(c.estimated_price) || 0), 0)
-  const unpaidCount = cars.filter(c => !c.paid).length
+  const unpaidCount = filtered.filter(c => !c.paid).length
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
