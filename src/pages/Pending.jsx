@@ -11,14 +11,12 @@ function PendingStats({ cars }) {
     .filter(c => !c.paid)
     .reduce((sum, c) => sum + (parseFloat(c.pending_balance) || parseFloat(c.estimated_price) || 0), 0)
   const unpaidCount = cars.filter(c => !c.paid).length
-  const receivedCount = cars.filter(c => c.received).length
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       {[
         { label: 'Total pendientes', value: total, icon: '📦', color: 'border-blue-500' },
         { label: 'Sin pagar', value: unpaidCount, icon: '💳', color: 'border-red-500' },
-        { label: 'Recibidos', value: receivedCount, icon: '✅', color: 'border-green-500' },
         { label: 'Saldo pendiente', value: `$${unpaidValue.toLocaleString('es-CO')}`, icon: '💰', color: 'border-yellow-500' },
       ].map(kpi => (
         <div key={kpi.label} className={`bg-zinc-900 border-l-4 ${kpi.color} rounded-2xl p-4`}>
