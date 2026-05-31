@@ -5,12 +5,12 @@ import LoadingSpinner from '../components/LoadingSpinner'
 const CATEGORIES = ['Básicos', 'Team Transport', 'Super Treasure Hunt', 'Premium', 'Red Line Club', 'Hot Wheels Collectors Special Edition', 'Ediciones especiales y conmemorativas', 'Series temáticas']
 
 // ── Estadísticas ─────────────────────────────────────────────────
-function PendingStats({ filtered }) {
-  const total = filtered.length
-  const unpaidValue = filtered
+function PendingStats({ cars }) {
+  const total = cars.length
+  const unpaidValue = cars
     .filter(c => !c.paid)
     .reduce((sum, c) => sum + (parseFloat(c.pending_balance) || parseFloat(c.estimated_price) || 0), 0)
-  const unpaidCount = filtered.filter(c => !c.paid).length
+  const unpaidCount = cars.filter(c => !c.paid).length
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -28,7 +28,6 @@ function PendingStats({ filtered }) {
     </div>
   )
 }
-
 // ── Formulario ───────────────────────────────────────────────────
 function PendingForm({ initial, onSave, onCancel }) {
   const [form, setForm] = useState(initial || {
@@ -348,7 +347,7 @@ function Pending() {
         </div>
 
         {/* Estadísticas */}
-        <PendingStats cars={cars} />
+        <PendingStats cars={filtered} />
 
         {/* Filtro por tienda */}
         {stores.length > 0 && (
