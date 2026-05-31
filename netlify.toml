@@ -57,6 +57,18 @@
   to = "/.netlify/functions/hash"
   status = 200
   force = true
+  
+[[redirects]]
+  from = "/api/pending-cars"
+  to = "/.netlify/functions/pending-cars"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/pending-cars/*"
+  to = "/.netlify/functions/pending-cars/:splat"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/*"
