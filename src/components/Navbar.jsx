@@ -72,9 +72,13 @@ function Navbar() {
           
             Favoritos
           </Link>
-          <Link to="/pending" className="hover:text-red-400 transition">
+
+          <Link to="/pending"
+            onClick={closeMenu}
+           className="py-2 px-3 rounded-lg hover:bg-zinc-800 transition">
             Pendientes
           </Link>
+
           <Link
             to="/dashboard"
             onClick={closeMenu}
