@@ -29,6 +29,9 @@ function Navbar() {
           <Link to="/favorites" className="hover:text-red-400 transition">
             Favoritos
           </Link>
+          <Link to="/pending" className="hover:text-red-400 transition">
+            Pendientes
+          </Link>
           <Link to="/dashboard" className="hover:text-red-400 transition">
             Dashboard
           </Link>
