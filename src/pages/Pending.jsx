@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { getPendingCars, createPendingCar, updatePendingCar, deletePendingCar, movePendingToInventory } from '../services/pendingCarsService'
 import LoadingSpinner from '../components/LoadingSpinner'
 
-const CATEGORIES = ['Básicos', 'Team Transport', 'Super Treasure Hunt', 'Premium', 'Red Line Club', 'Hot Wheels Collectors Special Edition', 'Ediciones especiales y conmemorativas', 'Series temáticas']
+const CATEGORIES = ['Básicos', 'Team Transport', 'Super Treasure Hunt', 'Premium','ELITE 64', 'Red Line Club', 'Hot Wheels Collectors Special Edition', 'Ediciones especiales y conmemorativas', 'Series temáticas']
 
 // ── Estadísticas ─────────────────────────────────────────────────
 function PendingStats({ cars }) {

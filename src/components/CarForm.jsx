@@ -88,6 +88,7 @@ function CarForm({ onCarCreated }) {
           <option value="Super Treasure Hunt">Super Treasure Hunt</option>
           <option value="Premium">Premium</option>
           <option value="Red Line Club">Red Line Club</option>
+          <option value="ELITE 64">ELITE 64</option>
           <option value="Hot Wheels Collectors Special Edition">Hot Wheels Collectors Special Edition</option>
           <option value="Ediciones especiales y conmemorativas">Ediciones especiales y conmemorativas</option>
           <option value="Series temáticas">Series temáticas</option>

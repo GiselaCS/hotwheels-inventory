@@ -51,7 +51,10 @@ function Filters({
           <option value="Red Line Club">
             Red Line Club
           </option>
-
+          <option value="ELITE 64">
+            ELITE 64
+          </option>
+          
           <option value="Hot Wheels Collectors Special Edition">
             Hot Wheels Collectors Special Edition
           </option>
