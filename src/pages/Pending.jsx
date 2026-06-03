@@ -13,7 +13,7 @@ function PendingStats({ cars }) {
   const unpaidCount = cars.filter(c => !c.paid).length
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
       {[
         { label: 'Total pendientes', value: total, icon: '📦', color: 'border-blue-500' },
         { label: 'Sin pagar', value: unpaidCount, icon: '💳', color: 'border-red-500' },
@@ -28,6 +28,7 @@ function PendingStats({ cars }) {
     </div>
   )
 }
+
 // ── Formulario ───────────────────────────────────────────────────
 function PendingForm({ initial, onSave, onCancel }) {
   const [form, setForm] = useState(initial || {
@@ -134,68 +135,147 @@ function PendingForm({ initial, onSave, onCancel }) {
 }
 
 // ── Tarjeta pendiente ─────────────────────────────────────────────
-function PendingCard({ car, onEdit, onDelete, onMove, onTogglePaid, onToggleReceived }) {
+function PendingCard({ car, onEdit, onDelete, onTogglePaid, onToggleReceived }) {
+  const [modalOpen, setModalOpen] = useState(false)
+
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow hover:scale-[1.01] transition">
+    <>
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow hover:scale-[1.01] transition">
 
-      {/* Imagen */}
-      <div className="h-32 bg-zinc-800 flex items-center justify-center relative">
-        <span className="absolute top-2 left-2 bg-orange-500/90 text-white text-xs px-2 py-0.5 rounded-full font-medium">
-          Pendiente
-        </span>
-        {car.image_url ? (
-          <img src={car.image_url} alt={car.name} className="h-full w-full object-contain p-2" />
-        ) : (
-          <span className="text-zinc-500 text-xs">Sin imagen</span>
-        )}
-      </div>
-
-      <div className="p-4">
-        <h3 className="font-bold text-white text-sm">{car.name}</h3>
-        <p className="text-zinc-400 text-xs">{car.brand}</p>
-
-        <div className="mt-2 space-y-1 text-xs text-zinc-300">
-          {car.category && <p><span className="text-zinc-500">Cat:</span> {car.category}</p>}
-          {car.color && <p><span className="text-zinc-500">Color:</span> {car.color}</p>}
-          {car.store && <p><span className="text-zinc-500">Tienda:</span> {car.store}</p>}
-          {car.estimated_price && <p><span className="text-zinc-500">Precio:</span> ${parseFloat(car.estimated_price).toLocaleString()}</p>}
-          {car.pending_balance && (
-            <p><span className="text-zinc-500">Saldo:</span> <span className="text-red-400">${parseFloat(car.pending_balance).toLocaleString()}</span></p>
+        {/* Imagen — clic abre modal */}
+        <div
+          className="h-32 bg-zinc-800 flex items-center justify-center relative cursor-pointer"
+          onClick={() => car.image_url && setModalOpen(true)}
+        >
+          <span className="absolute top-2 left-2 bg-orange-500/90 text-white text-xs px-2 py-0.5 rounded-full font-medium z-10">
+            Pendiente
+          </span>
+          {car.image_url ? (
+            <>
+              <img src={car.image_url} alt={car.name} className="h-full w-full object-contain p-2" />
+              {/* Hint de click */}
+              <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition flex items-center justify-center">
+                <span className="opacity-0 hover:opacity-100 text-white text-xs bg-black/60 px-2 py-1 rounded-full transition">
+                  Ver
+                </span>
+              </div>
+            </>
+          ) : (
+            <span className="text-zinc-500 text-xs">Sin imagen</span>
           )}
         </div>
 
-        {/* Checkboxes */}
-        <div className="mt-3 flex gap-3">
-          <label className="flex items-center gap-1.5 cursor-pointer">
-            <input type="checkbox" checked={car.paid} onChange={() => onTogglePaid(car)}
-              className="w-3.5 h-3.5 accent-green-500" />
-            <span className={`text-xs ${car.paid ? 'text-green-400' : 'text-zinc-400'}`}>Pagado</span>
-          </label>
-          <label className="flex items-center gap-1.5 cursor-pointer">
-            <input type="checkbox" checked={car.received} onChange={() => onToggleReceived(car)}
-              className="w-3.5 h-3.5 accent-blue-500" />
-            <span className={`text-xs ${car.received ? 'text-blue-400' : 'text-zinc-400'}`}>Recibido</span>
-          </label>
-        </div>
+        <div className="p-4">
+          <h3 className="font-bold text-white text-sm">{car.name}</h3>
+          <p className="text-zinc-400 text-xs">{car.brand}</p>
 
-        {/* Observaciones */}
-        {car.observations && (
-          <p className="mt-2 text-xs text-zinc-500 italic line-clamp-2">{car.observations}</p>
-        )}
+          <div className="mt-2 space-y-1 text-xs text-zinc-300">
+            {car.category && <p><span className="text-zinc-500">Cat:</span> {car.category}</p>}
+            {car.color && <p><span className="text-zinc-500">Color:</span> {car.color}</p>}
+            {car.store && <p><span className="text-zinc-500">Tienda:</span> {car.store}</p>}
+            {car.estimated_price && <p><span className="text-zinc-500">Precio:</span> ${parseFloat(car.estimated_price).toLocaleString()}</p>}
+            {car.pending_balance && (
+              <p><span className="text-zinc-500">Saldo:</span> <span className="text-red-400">${parseFloat(car.pending_balance).toLocaleString()}</span></p>
+            )}
+          </div>
 
-        {/* Botones */}
-        <div className="mt-3 flex gap-1.5">
-          <button onClick={() => onEdit(car)}
-            className="bg-blue-500 hover:bg-blue-600 px-2.5 py-1.5 rounded-lg text-xs font-medium transition flex-1">
-            Editar
-          </button>
-          <button onClick={() => onDelete(car.id)}
-            className="bg-red-500 hover:bg-red-600 px-2.5 py-1.5 rounded-lg text-xs font-medium transition flex-1">
-            Eliminar
-          </button>
+          {/* Checkboxes */}
+          <div className="mt-3 flex gap-3">
+            <label className="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" checked={car.paid} onChange={() => onTogglePaid(car)}
+                className="w-3.5 h-3.5 accent-green-500" />
+              <span className={`text-xs ${car.paid ? 'text-green-400' : 'text-zinc-400'}`}>Pagado</span>
+            </label>
+            <label className="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" checked={car.received} onChange={() => onToggleReceived(car)}
+                className="w-3.5 h-3.5 accent-blue-500" />
+              <span className={`text-xs ${car.received ? 'text-blue-400' : 'text-zinc-400'}`}>Recibido</span>
+            </label>
+          </div>
+
+          {/* Observaciones */}
+          {car.observations && (
+            <p className="mt-2 text-xs text-zinc-500 italic line-clamp-2">{car.observations}</p>
+          )}
+
+          {/* Botones */}
+          <div className="mt-3 flex gap-1.5">
+            <button onClick={() => onEdit(car)}
+              className="bg-blue-500 hover:bg-blue-600 px-2.5 py-1.5 rounded-lg text-xs font-medium transition flex-1">
+              Editar
+            </button>
+            <button onClick={() => onDelete(car.id)}
+              className="bg-red-500 hover:bg-red-600 px-2.5 py-1.5 rounded-lg text-xs font-medium transition flex-1">
+              Eliminar
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* ── Modal vista previa ── */}
+      {modalOpen && (
+        <div
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={() => setModalOpen(false)}
+        >
+          <div
+            className="bg-zinc-900 rounded-2xl max-w-lg w-full overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+              <div>
+                <h3 className="text-lg font-bold text-white">{car.name}</h3>
+                <p className="text-zinc-400 text-sm">{car.brand}</p>
+              </div>
+              <button onClick={() => setModalOpen(false)}
+                className="text-zinc-400 hover:text-white text-2xl transition">
+                ×
+              </button>
+            </div>
+
+            {/* Imagen grande */}
+            <div className="h-72 bg-zinc-800 flex items-center justify-center">
+              <img src={car.image_url} alt={car.name}
+                className="h-full w-full object-contain p-4" />
+            </div>
+
+            {/* Info */}
+            <div className="p-4 border-t border-zinc-800">
+              <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+                {car.category && <p className="text-zinc-400">Categoría: <span className="text-white">{car.category}</span></p>}
+                {car.type && <p className="text-zinc-400">Tipo: <span className="text-white">{car.type}</span></p>}
+                {car.color && <p className="text-zinc-400">Color: <span className="text-white">{car.color}</span></p>}
+                {car.store && <p className="text-zinc-400">Tienda: <span className="text-white">{car.store}</span></p>}
+                {car.estimated_price && (
+                  <p className="text-zinc-400">Precio: <span className="text-green-400 font-bold">${parseFloat(car.estimated_price).toLocaleString()}</span></p>
+                )}
+                {car.pending_balance && (
+                  <p className="text-zinc-400">Saldo: <span className="text-red-400 font-bold">${parseFloat(car.pending_balance).toLocaleString()}</span></p>
+                )}
+              </div>
+
+              {/* Estado */}
+              <div className="flex gap-3 mb-3">
+                <span className={`text-xs px-2 py-1 rounded-full ${car.paid ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                  {car.paid ? '✓ Pagado' : '✗ Sin pagar'}
+                </span>
+                <span className={`text-xs px-2 py-1 rounded-full ${car.received ? 'bg-blue-500/20 text-blue-400' : 'bg-zinc-700 text-zinc-400'}`}>
+                  {car.received ? '✓ Recibido' : '⏳ Pendiente de envío'}
+                </span>
+              </div>
+
+              {/* Observaciones */}
+              {car.observations && (
+                <p className="text-xs text-zinc-500 italic border-t border-zinc-800 pt-3">
+                  {car.observations}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -307,7 +387,6 @@ function Pending() {
   }
 
   const handleCancelMove = async () => {
-    // Marcar como recibido sin mover
     try {
       await updatePendingCar(moveTarget.id, { ...moveTarget, received: true, image: null })
       loadCars()
@@ -378,7 +457,6 @@ function Pending() {
                   car={car}
                   onEdit={(c) => { setEditingCar(c); setShowForm(true) }}
                   onDelete={handleDelete}
-                  onMove={setMoveTarget}
                   onTogglePaid={handleTogglePaid}
                   onToggleReceived={handleToggleReceived}
                 />
@@ -423,7 +501,7 @@ function Pending() {
       )}
 
       {/* Modal mover al inventario */}
-      {moveTarget && (
+      {moveTarget && !showForm && (
         <MoveModal
           car={moveTarget}
           onConfirm={handleMove}

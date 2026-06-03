@@ -11,6 +11,7 @@ function Inventory() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('')
   const [color, setColor] = useState('')
+  const [brand, setBrand] = useState('')  // ← nuevo
   const [currentPage, setCurrentPage] = useState(1)
 
   const carsPerPage = 12
@@ -46,8 +47,9 @@ function Inventory() {
   const filteredCars = cars.filter((car) => {
     const matchSearch = car.name.toLowerCase().includes(search.toLowerCase())
     const matchCategory = category === '' || car.category === category
-    const matchColor = color === '' || car.color.toLowerCase().includes(color.toLowerCase())
-    return matchSearch && matchCategory && matchColor
+    const matchColor = color === '' || car.color?.toLowerCase().includes(color.toLowerCase())  // ← añadido ?.
+    const matchBrand = brand === '' || car.brand?.toLowerCase().includes(brand.toLowerCase())  // ← nuevo
+    return matchSearch && matchCategory && matchColor && matchBrand
   })
 
   const totalPages = Math.ceil(filteredCars.length / carsPerPage)
@@ -66,6 +68,8 @@ function Inventory() {
           setCategory={setCategory}
           color={color}
           setColor={setColor}
+          brand={brand}        // ← nuevo
+          setBrand={setBrand}  // ← nuevo
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
