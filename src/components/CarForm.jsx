@@ -92,6 +92,7 @@ function CarForm({ onCarCreated }) {
           <option value="Hot Wheels Collectors Special Edition">Hot Wheels Collectors Special Edition</option>
           <option value="Ediciones especiales y conmemorativas">Ediciones especiales y conmemorativas</option>
           <option value="Series temáticas">Series temáticas</option>
+          <option value="Motor Cycles">Motor Cycles</option>
         </select>
 
         <input
