@@ -37,6 +37,16 @@ function Filters({
           <option value="Series temáticas">Series temáticas</option>
           <option value="Motor Cycles">Motor Cycles</option>
         </select>
+        
+        <select
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          className="bg-zinc-800 p-3 rounded-xl"
+        >
+          <option value="">Selecciona tipo</option>
+          <option value="Carro">Carro</option>
+          <option value="Moto">Moto</option>
+        </select>
 
         <input
           type="text"
