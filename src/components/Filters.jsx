@@ -7,10 +7,12 @@ function Filters({
   setColor,
   brand,
   setBrand,
+  type,
+  setType,
 }) {
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
 
         <input
           type="text"
@@ -37,13 +39,13 @@ function Filters({
           <option value="Series temáticas">Series temáticas</option>
           <option value="Motor Cycles">Motor Cycles</option>
         </select>
-        
+
         <select
           value={type}
           onChange={(e) => setType(e.target.value)}
           className="bg-zinc-800 p-3 rounded-xl"
         >
-          <option value="">Selecciona tipo</option>
+          <option value="">Todos los tipos</option>
           <option value="Carro">Carro</option>
           <option value="Moto">Moto</option>
         </select>
