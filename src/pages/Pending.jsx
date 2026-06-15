@@ -313,7 +313,7 @@ function Pending() {
   const [moveTarget, setMoveTarget] = useState(null)
   const [storeFilter, setStoreFilter] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const CARS_PER_PAGE = 42
+  const CARS_PER_PAGE = 36
 
   useEffect(() => { loadCars() }, [])
 
