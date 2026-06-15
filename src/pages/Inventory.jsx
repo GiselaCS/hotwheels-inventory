@@ -15,7 +15,7 @@ function Inventory() {
   const [type, setType] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
 
-  const carsPerPage = 40
+  const carsPerPage = 42
 
   useEffect(() => {
     loadCars()
